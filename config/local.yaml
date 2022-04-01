@@ -1,0 +1,4 @@
+config:
+  default:
+    remote: local
+    ticket_structure: "mybla#([0-9]+)"
