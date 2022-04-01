@@ -2,10 +2,19 @@ import argparse
 import os
 import re
 import sys
+from dataclasses import dataclass
 
 import git
 
 from config_reader import ConfigReader
+
+
+@dataclass
+class Arguments:
+    folder: str
+    config: str
+    profile: str
+    increase_version: str
 
 
 def dir_path(string):
@@ -22,15 +31,20 @@ def file_path(string):
         raise NotADirectoryError(string)
 
 
-def parse_args():
+def parse_args() -> Arguments:
     parser = argparse.ArgumentParser(description='EZGit Client.')
-    parser.add_argument('--folder', metavar='f', type=dir_path, default='.')
-    parser.add_argument('--config', metavar='c', type=file_path, default='default.yaml')
-    parser.add_argument('--profile', metavar='p', type=str, default='default')
+    parser.add_argument('-f', '--folder', metavar='f', type=dir_path, default='.')
+    parser.add_argument('-c', '--config', metavar='c', type=file_path, default='default.yaml')
+    parser.add_argument('-p', '--profile', metavar='p', type=str, default='default')
+    parser.add_argument('-i', '--increase-version', metavar='i', type=str, choices=['major', 'minor', 'patch'])
 
     args = parser.parse_args()
     print("Opening Path : %s with config: %s" % (args.folder, args.config))
-    return args.config, args.folder, args.profile
+
+    return Arguments(config=args.config,
+                     folder=args.folder,
+                     profile=args.profile,
+                     increase_version=args.increase_version)
 
 
 def get_ticket_id(repo_reader: ConfigReader, branch: git.SymbolicReference) -> str:
@@ -53,7 +67,7 @@ def init_submodules(git_folder: str, repo_reader: ConfigReader):
 
 
 if __name__ == '__main__':
-    config, folder, profile = parse_args()
-    reader = ConfigReader(config)
-    reader.active_config = profile
-    init_submodules(folder, reader)
+    arguments = parse_args()
+    reader = ConfigReader(arguments.config)
+    reader.active_config = arguments.profile
+    init_submodules(arguments.folder, reader)
