@@ -48,13 +48,13 @@ class ConfigReader:
                                      version_config=version_info)
 
     @property
-    def repo_config(self):
+    def repo_config(self) -> RepoConfig:
         assert self.active_config is not None
 
         return self._repo_data
 
     @property
-    def active_config(self):
+    def active_config(self) -> str:
         return self._active_config
 
     @active_config.setter

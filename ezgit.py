@@ -1,5 +1,4 @@
 import argparse
-import os
 import re
 import sys
 
@@ -49,20 +48,17 @@ def init_git(git_folder: str, use_feature_branch: bool, repo_reader: ConfigReade
     for submodule in g.submodules:
         latest_branches = list()
         for remote in submodule.module().remotes:
-            # print("Updating submodule %s from remote %s" % (submodule.name, remote.name))
             remote.update()
 
             # find feature branch with ticket id
             if use_feature_branch:
-                for remote_ref in remote.refs:
-                    if ticket_id in remote_ref.name:
-                        # print("Found ticket in branch; " + remote_ref.name)
-                        for commit in submodule.module().iter_commits(rev=remote_ref):
-                            if ticket_id in commit.message:
-                                latest_branches.append(commit)
-                                break
+                find_feature_branch_commit(latest_branches, remote, submodule, ticket_id)
             else:
-                raise NotImplementedError("Only feature branches are currently supported!")
+                find_default_branch_commit(remote, latest_branches, submodule, ticket_id)
+
+        if len(latest_branches) == 0:
+            raise Exception("No branch found related to given ticket")
+
         latest_branch = max(latest_branches, key=lambda x: x.committed_date)
 
         if latest_branch.binsha != submodule.binsha:
@@ -72,6 +68,29 @@ def init_git(git_folder: str, use_feature_branch: bool, repo_reader: ConfigReade
             print("Updating Submodule to SHA: %s" % str(latest_branch))
         else:
             print("Submodule is already up to date!")
+
+
+def find_default_branch_commit(remote, latest_branches, submodule, ticket_id):
+    remotes = list(filter(lambda x: x.name.endswith(reader.repo_config.default_branch), remote.refs))
+    if len(remotes) == 0:
+        raise NameError("There is no default branch with the name '%s'\nPossible branches are: %s" % (
+            reader.repo_config.default_branch, list(map(lambda x: x.name, remote.refs))[:5]))
+    for remote in remotes:
+        find_ticket_in_branch(latest_branches, remote, submodule, ticket_id)
+
+
+def find_feature_branch_commit(latest_branches, remote, submodule, ticket_id):
+    for remote_ref in remote.refs:
+        if ticket_id in remote_ref.name:
+            # print("Found ticket in branch; " + remote_ref.name)
+            find_ticket_in_branch(latest_branches, remote_ref, submodule, ticket_id)
+
+
+def find_ticket_in_branch(latest_branches, remote_ref, submodule, ticket_id):
+    for commit in submodule.module().iter_commits(rev=remote_ref):
+        if ticket_id in commit.message:
+            latest_branches.append(commit)
+            break
 
 
 if __name__ == '__main__':
