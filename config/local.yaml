@@ -1,8 +1,10 @@
 config:
   default:
-    remote: local
+    remote: origin
     ticket_structure: "(mybla#[0-9]+)"
     default_branch: main
     versioning:
       file: conanfile.py
       version_string_match: 'version = \"(\d+\.\d+\.\d+)+\"'
+    commit_messages:
+      update_submodule: "{ticket_id}: update submodule"

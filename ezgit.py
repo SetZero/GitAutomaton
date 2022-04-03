@@ -37,7 +37,11 @@ def get_ticket_id(repo_reader: ConfigReader, branch: git.SymbolicReference) -> s
 def init_git(git_folder: str, use_feature_branch: bool, repo_reader: ConfigReader):
     g = git.Repo(git_folder)
 
-    remote = next(remote for remote in g.remotes if remote.name == repo_reader.repo_config.remote)
+    remote_from_config = [remote for remote in g.remotes if remote.name == repo_reader.repo_config.remote]
+    if len(remote_from_config) == 0:
+        raise Exception("There is no remote called %s, possibles values are: %s" % (
+            repo_reader.repo_config.remote, ','.join(list(map(lambda x: x.name, g.remotes))[:5])))
+    remote = next(iter(remote_from_config))
     ticket_id = get_ticket_id(repo_reader, g.active_branch)
     if ticket_id is None:
         sys.exit("You are not inside of a feature branch or your ticket config is invalid!")
@@ -64,7 +68,7 @@ def init_git(git_folder: str, use_feature_branch: bool, repo_reader: ConfigReade
         if latest_branch.binsha != submodule.binsha:
             submodule.binsha = latest_branch.binsha
             g.index.add([submodule])
-            g.index.commit("%s: update submodule" % ticket_id)
+            g.index.commit(reader.repo_config.commit_messages.update_submodule.format(ticket_id=ticket_id))
             print("Updating Submodule to SHA: %s" % str(latest_branch))
         else:
             print("Submodule is already up to date!")
