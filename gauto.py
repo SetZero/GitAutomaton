@@ -10,7 +10,7 @@ from version_manager import increase_version, Version
 
 
 def parse_args() -> Arguments:
-    parser = argparse.ArgumentParser(description='EZGit Client.')
+    parser = argparse.ArgumentParser(description='GitAutomaton Client.')
     parser.add_argument('-r', '--repo', metavar='repository path', type=dir_path, default='.')
     parser.add_argument('-c', '--config', metavar='configuration file', type=file_path, default='default.yaml')
     parser.add_argument('-p', '--profile', metavar='profile', type=str, default='default')
