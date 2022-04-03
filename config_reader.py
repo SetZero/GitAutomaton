@@ -15,6 +15,7 @@ class VersionConfig:
 class RepoConfig:
     remote: str
     ticket_structure: str
+    default_branch: str
     version_config: VersionConfig
 
 
@@ -43,6 +44,7 @@ class ConfigReader:
 
         self._repo_data = RepoConfig(remote=self._data['config'][self.active_config]['remote'],
                                      ticket_structure=self._data['config'][self.active_config]['ticket_structure'],
+                                     default_branch=self._data['config'][self.active_config]['default_branch'],
                                      version_config=version_info)
 
     @property

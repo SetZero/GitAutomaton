@@ -8,6 +8,7 @@ class Arguments:
     config: str
     profile: str
     increment_version: str
+    feature_branch: bool
 
 
 def dir_path(string: str) -> str:

@@ -1,7 +1,8 @@
 config:
   default:
     remote: local
-    ticket_structure: "mybla#([0-9]+)"
+    ticket_structure: "(mybla#[0-9]+)"
+    default_branch: master
     versioning:
-      file: "conanfile.py"
+      file: conanfile.py
       version_string_match: 'version = \"(\d+\.\d+\.\d+)+\"'
