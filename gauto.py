@@ -4,9 +4,9 @@ import sys
 
 import git
 
-from config_reader import ConfigReader
-from utils import Arguments, dir_path, file_path
-from version_manager import increase_version, Version
+from src.modules.config_reader import ConfigReader
+from src.modules.utils import Arguments, dir_path, file_path
+from src.modules.version.__init__ import increase_version, Version
 
 
 def parse_args() -> Arguments:
@@ -103,6 +103,6 @@ if __name__ == '__main__':
     reader.active_config = arguments.profile
 
     if arguments.increment_version is not None:
-        increase_version(Version(arguments.increment_version), reader)
+        increase_version(Version(arguments.increment_version), reader.repo_config)
 
     init_git(arguments.repo, arguments.feature_branch, reader)
